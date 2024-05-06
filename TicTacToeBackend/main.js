@@ -7,7 +7,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://tic-tac-toe-z6tc.vercel.app/",
+    origin: "https://tic-tac-toe-z6tc.vercel.app",
   })
 );
 
