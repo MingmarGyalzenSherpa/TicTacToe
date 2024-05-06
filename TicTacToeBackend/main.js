@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
 
 const io = new Server(server, {
   cors: {
-    origin: "https://tic-tac-toe-z6tc.vercel.app/",
+    origin: "https://tic-tac-toe-z6tc.vercel.app",
   },
 });
 let pendingUser = null;
