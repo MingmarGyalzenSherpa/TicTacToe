@@ -15,6 +15,12 @@ const server = app.listen(8080, () => {
   console.log("listening on 8080");
 });
 
+app.get("*", (req, res, next) => {
+  res.status(200).json({
+    message: "bad request",
+  });
+});
+
 app.get("/", (req, res) => {
   res.send("welcome to tic tac toe");
 });
