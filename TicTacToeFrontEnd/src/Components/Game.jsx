@@ -10,7 +10,9 @@ export default function Game({ name }) {
   const [gameOver, setGameOver] = useState(false);
   const [btnClicked, setBtnClicked] = useState(false);
   function connectToServer() {
-    const newSocket = io("ws://127.0.0.1:8080/", { query: `name=${name}` });
+    const newSocket = io("https://tic-tac-toe-seven-pied.vercel.app/", {
+      query: `name=${name}`,
+    });
     setSocket(newSocket);
     newSocket.on("connect", () => {
       console.log("connected to server");
