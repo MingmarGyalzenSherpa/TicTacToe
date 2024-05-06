@@ -11,6 +11,10 @@ const server = app.listen(8080, () => {
   console.log("listening on 8080");
 });
 
+app.get("/", (req, res) => {
+  res.send("welcome to tic tac toe");
+});
+
 const io = new Server(server, {
   cors: {
     origin: "*",
