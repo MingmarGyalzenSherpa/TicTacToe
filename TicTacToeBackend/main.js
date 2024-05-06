@@ -5,7 +5,11 @@ import cors from "cors";
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://tic-tac-toe-seven-pied.vercel.app/",
+  })
+);
 
 const server = app.listen(8080, () => {
   console.log("listening on 8080");
