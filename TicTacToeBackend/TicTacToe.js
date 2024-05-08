@@ -5,19 +5,19 @@ export default class TicTacToe {
   turn;
   grid;
 
-  constructor(websocket1, websocket2) {
-    this.playerX = websocket1;
-    this.playerO = websocket2;
-    this.playerX.on("move", (move) =>
-      this.makeMove(this.playerX, JSON.parse(move))
+  constructor(player1, player2) {
+    this.playerX = player1;
+    this.playerO = player2;
+    this.playerX.socket.on("move", (move) =>
+      this.makeMove(this.playerX.socket, JSON.parse(move))
     );
-    this.playerO.on("move", (move) =>
-      this.makeMove(this.playerO, JSON.parse(move))
+    this.playerO.socket.on("move", (move) =>
+      this.makeMove(this.playerO.socket, JSON.parse(move))
     );
 
     this.addEvent("play-again", (socket) => {
       socket.playAgain = true;
-      if (this.playerX.playAgain && this.playerO.playAgain) {
+      if (this.playerX.socket.playAgain && this.playerO.socket.playAgain) {
         this.sendMessage("play-again");
         this.play();
       }
@@ -29,21 +29,24 @@ export default class TicTacToe {
   play() {
     this.grid = new Array(9).fill("_");
     this.isAlive = true;
-    this.turn = this.playerX;
+    this.turn = this.playerX.socket;
     this.grid = new Array(9).fill("_");
     this.turn.emit("message", "your turn");
-    this.playerO.emit("message", `Waiting for ${this.playerX.userName}  move`);
+    this.playerO.socket.emit(
+      "message",
+      `Waiting for ${this.playerX.name}  move`
+    );
     this.sendMessage("grid", this.grid);
   }
 
   addEvent(event, cb) {
-    this.playerX.on(event, () => cb(this.playerX));
-    this.playerO.on(event, () => cb(this.playerO));
+    this.playerX.socket.on(event, () => cb(this.playerX.socket));
+    this.playerO.socket.on(event, () => cb(this.playerO.socket));
   }
 
   sendMessage(event, message) {
-    this.playerX.emit(event, message);
-    this.playerO.emit(event, message);
+    this.playerX.socket.emit(event, message);
+    this.playerO.socket.emit(event, message);
   }
 
   makeMove(player, move) {
@@ -59,21 +62,21 @@ export default class TicTacToe {
         player.emit("error", "Please select a valid grid");
         return;
       }
-      if (player == this.playerX) {
+      if (player == this.playerX.socket) {
         this.grid[move.pos] = "X";
-        this.turn.emit("message", `Waiting for ${this.playerO.userName}  move`);
-        this.turn = this.playerO;
+        this.turn.emit("message", `Waiting for ${this.playerO.name}  move`);
+        this.turn = this.playerO.socket;
         this.turn.emit("message", "Your turn");
       }
-      if (player == this.playerO) {
+      if (player == this.playerO.socket) {
         this.grid[move.pos] = "O";
-        this.turn.emit("message", `Waiting for ${this.playerX.userName}  move`);
+        this.turn.emit("message", `Waiting for ${this.playerX.name}  move`);
 
-        this.turn = this.playerX;
+        this.turn = this.playerX.socket;
         this.turn.emit("message", "Your turn");
       }
-      this.playerX.emit("grid", this.grid);
-      this.playerO.emit("grid", this.grid);
+      this.playerX.socket.emit("grid", this.grid);
+      this.playerO.socket.emit("grid", this.grid);
       if (this.checkWinner()) {
         this.isAlive = false;
         this.sendMessage("over", `Winner is ${this.grid[move.pos]}`);

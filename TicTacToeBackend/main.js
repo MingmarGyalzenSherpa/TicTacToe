@@ -2,9 +2,12 @@ import express from "express";
 import { Server } from "socket.io";
 import TicTacToe from "./TicTacToe.js";
 import cors from "cors";
-
+import lobbies from "./Lobbies.js";
+import Player from "./Player.js";
+import Lobby from "./Lobby.js";
 const app = express();
 
+app.use(express.json());
 app.use(
   cors({
     origin: "*",
@@ -26,25 +29,69 @@ const io = new Server(server, {
 });
 let pendingUser = null;
 
-io.use((socket, next) => {
-  console.log(socket.request._query["name"]);
-  socket.userName = socket.request._query["name"];
-  next();
-});
-
 io.on("connection", (socket) => {
-  console.log("Connection made");
-  console.log(socket.userName);
-  if (socket.recovered) {
-    console.log("Client reconnected", socket.id);
-  }
-  if (!pendingUser) {
-    pendingUser = socket;
-    socket.emit("message", "Waiting for another player");
-  } else {
-    pendingUser.emit("message", "Player found game starting");
-    socket.emit("message", "Starting game");
-    new TicTacToe(pendingUser, socket);
-    pendingUser = null;
-  }
+  //logic for creating a lobby
+  socket.on("create-lobby", (data) => {
+    let details = JSON.parse(data);
+    console.log(lobbies);
+
+    const newLobby = new Lobby(
+      details.lobbyName,
+      new Player(details.name, socket),
+      details.password
+    );
+    console.log(newLobby);
+    for (let lobby of lobbies) {
+      if (lobby.name == newLobby.name) {
+        socket.emit(
+          "create-lobby-response",
+          JSON.stringify({
+            message: "Lobby name already exists",
+            status: "failure",
+          })
+        );
+        return;
+      }
+    }
+    lobbies.push(newLobby);
+    socket.emit(
+      "create-lobby-response",
+      JSON.stringify({
+        message: "Lobby created successfully",
+        status: "success",
+      })
+    );
+  });
+
+  //logic for joining a lobby
+  socket.on("join-lobby", (data) => {
+    //data consists the name of the lobby,name of player and password
+    let details = JSON.parse(data);
+
+    for (let lobby of lobbies) {
+      if (
+        lobby.name == details.lobbyName &&
+        lobby.password == details.password
+      ) {
+        lobby.players.push(new Player(details.name, socket));
+        console.log(lobby);
+        socket.emit(
+          "join-lobby-response",
+          JSON.stringify({
+            message: "Your game will start shortly",
+            status: "success",
+          })
+        );
+        lobby.play();
+        return;
+      }
+    }
+    socket.emit(
+      "join-lobby-response",
+      JSON.stringify({
+        message: "Incorrect lobby name or password",
+        status: "failure",
+      })
+    );
+  });
 });
