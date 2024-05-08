@@ -1,0 +1,131 @@
+* {
+  margin: 0px;
+  padding: 0px;
+  font-family: sans-serif;
+  box-sizing: border-box;
+}
+
+.home {
+  height: 100vh;
+
+  flex-direction: column;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.home h1 {
+  text-align: center;
+  font-size: 40px;
+  font-weight: bold;
+  margin-bottom: 60px;
+}
+
+.routes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 100px;
+  row-gap: 30px;
+}
+
+.btn {
+  background-color: rgb(113, 206, 113);
+  text-decoration: none;
+  color: white;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  padding: 35px 30px;
+  width: 200px;
+  height: 50px;
+  border-radius: 3px;
+}
+
+.btn:hover {
+  background-color: rgb(83, 174, 83);
+}
+
+.create-lobby {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.create-lobby .form-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  width: 350px;
+  height: 400px;
+  border-radius: 5px;
+  box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px,
+    rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
+}
+
+.form-card h2 {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.form-card p {
+  font-size: 12px;
+}
+
+.input-wrapper {
+  width: 100%;
+  margin: 15px 0px;
+}
+
+input {
+  width: 100%;
+  border: 1px solid rgb(234, 233, 233);
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.mt-40 {
+  margin-top: 40px;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+h1 {
+  text-align: center;
+}
+
+.lobby-page {
+  max-width: 1400px;
+  padding: 20px;
+  margin: 0 auto;
+}
+
+.lobbies {
+  padding: 20px;
+  margin: 40px;
+  display: grid;
+  place-items: center;
+  grid-template-columns: repeat(5, 1fr);
+  row-gap: 20px;
+}
+
+.game-card {
+  width: 200px;
+  display: inline-block;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
+  padding: 20px 30px;
+}
+
+.game-card-title {
+  color: black;
+  font-size: 24px;
+}
+
+.game-card-desc {
+  color: rgb(167, 165, 165);
+}
