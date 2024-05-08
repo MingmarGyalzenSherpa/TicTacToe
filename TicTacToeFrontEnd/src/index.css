@@ -129,3 +129,7 @@ h1 {
 .game-card-desc {
   color: rgb(167, 165, 165);
 }
+
+.err {
+  color: red;
+}
