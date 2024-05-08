@@ -16,10 +16,14 @@ export default class TicTacToe {
     );
 
     this.addEvent("play-again", (socket) => {
-      socket.playAgain = true;
-      if (this.playerX.socket.playAgain && this.playerO.socket.playAgain) {
-        this.sendMessage("play-again");
-        this.play();
+      try {
+        socket.playAgain = true;
+        if (this.playerX.socket.playAgain && this.playerO.socket.playAgain) {
+          this.sendMessage("play-again");
+          this.play();
+        }
+      } catch (err) {
+        console.log(err);
       }
     });
 
@@ -50,47 +54,52 @@ export default class TicTacToe {
   }
 
   makeMove(player, move) {
-    console.log("move =");
-    console.log(move);
-    //move = {pos:0}
-    if (this.isAlive == false) {
-      // player.emit("message", "game already over");
-      return;
-    }
-    if (player == this.turn) {
-      if (this.collisionDetection(move)) {
-        player.emit("error", "Please select a valid grid");
+    try {
+      console.log("move =");
+      console.log(move);
+      //move = {pos:0}
+      if (this.isAlive == false) {
+        // player.emit("message", "game already over");
         return;
       }
-      if (player == this.playerX.socket) {
-        this.grid[move.pos] = "X";
-        this.turn.emit("message", `Waiting for ${this.playerO.name}  move`);
-        this.turn = this.playerO.socket;
-        this.turn.emit("message", "Your turn");
-      }
-      if (player == this.playerO.socket) {
-        this.grid[move.pos] = "O";
-        this.turn.emit("message", `Waiting for ${this.playerX.name}  move`);
+      if (player == this.turn) {
+        if (this.collisionDetection(move)) {
+          player.emit("error", "Please select a valid grid");
+          return;
+        }
+        if (player == this.playerX.socket) {
+          this.grid[move.pos] = "X";
+          this.turn.emit("message", `Waiting for ${this.playerO.name}  move`);
+          this.turn = this.playerO.socket;
+          this.turn.emit("message", "Your turn");
+        }
+        if (player == this.playerO.socket) {
+          this.grid[move.pos] = "O";
+          this.turn.emit("message", `Waiting for ${this.playerX.name}  move`);
 
-        this.turn = this.playerX.socket;
-        this.turn.emit("message", "Your turn");
-      }
-      this.playerX.socket.emit("grid", this.grid);
-      this.playerO.socket.emit("grid", this.grid);
-      if (this.checkWinner()) {
-        this.isAlive = false;
-        this.sendMessage("over", `Winner is ${this.grid[move.pos]}`);
-        return;
-      }
+          this.turn = this.playerX.socket;
+          this.turn.emit("message", "Your turn");
+        }
+        this.playerX.socket.emit("grid", this.grid);
+        this.playerO.socket.emit("grid", this.grid);
+        if (this.checkWinner()) {
+          this.isAlive = false;
+          this.sendMessage("over", `Winner is ${this.grid[move.pos]}`);
+          return;
+        }
 
-      if (this.checkDraw()) {
-        this.isAlive = false;
-        this.sendMessage("over", "It's a draw");
-        return;
+        if (this.checkDraw()) {
+          this.isAlive = false;
+          this.sendMessage("over", "It's a draw");
+          return;
+        }
+        this.turn.emit("message", "Your turn");
+      } else {
+        player.emit("error", "not your turn");
       }
-      this.turn.emit("message", "Your turn");
-    } else {
-      player.emit("error", "not your turn");
+    } catch (err) {
+      console.log("Error on making move");
+      console.log(err);
     }
   }
 

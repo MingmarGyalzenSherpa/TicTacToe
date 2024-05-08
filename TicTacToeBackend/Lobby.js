@@ -8,7 +8,7 @@ export default class Lobby {
     this.name = name;
   }
 
-  play() {
+  start() {
     new TicTacToe(...this.players);
   }
 }
