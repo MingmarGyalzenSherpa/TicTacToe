@@ -1,73 +1,33 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import GameCard from "../Components/GameCard";
+import { SocketContext } from "../context/socketContext";
 
 export default function Lobby() {
-  const lobbies = ["Mingmar Gyalzen Sherpa", "Pranit Lama"];
+  const socket = useContext(SocketContext);
+  const [lobbies, setLobbies] = useState([]);
+  useEffect(() => {
+    if (!socket) return;
+    socket.emit("browse-lobbies");
+    socket.on("browse-lobby-response", (response) => {
+      console.log("haha");
+      console.log(response);
+      const data = JSON.parse(response);
+      setLobbies(data);
+    });
+  }, [socket]);
 
   return (
     <div className="lobby-page">
       <h1>Lobbies</h1>
       <div className="lobbies">
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />{" "}
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />{" "}
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />{" "}
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />{" "}
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />{" "}
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />{" "}
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />{" "}
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
-        <GameCard title={"hello"} user={"Mingmar"} />
+        {lobbies.map((lobby) => (
+          <GameCard
+            key={lobby.name}
+            title={lobby.name}
+            user={lobby.players[0]}
+            status={lobby.status}
+          />
+        ))}
       </div>
     </div>
   );

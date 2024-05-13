@@ -2,9 +2,10 @@ import express from "express";
 import { Server } from "socket.io";
 import TicTacToe from "./TicTacToe.js";
 import cors from "cors";
-import lobbies from "./Lobbies.js";
+import { lobbies, updateLobbies } from "./Lobbies.js";
 import Player from "./Player.js";
 import Lobby from "./Lobby.js";
+import { lobbiesToLobbiesDetails } from "./helper/helper.js";
 const app = express();
 
 app.use(express.json());
@@ -23,6 +24,9 @@ app.get("/", (req, res) => {
 });
 
 const io = new Server(server, {
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000,
+  },
   cors: {
     origin: "*",
   },
@@ -30,17 +34,24 @@ const io = new Server(server, {
 let pendingUser = null;
 
 io.on("connection", (socket) => {
+  //browsing all the lobbies;
+  socket.on("browse-lobbies", () => {
+    let lobbiesDetails = lobbiesToLobbiesDetails(lobbies);
+    console.log(lobbiesDetails);
+    socket.emit("browse-lobby-response", JSON.stringify(lobbiesDetails));
+  });
+
   //logic for creating a lobby
   socket.on("create-lobby", (data) => {
     try {
       let details = JSON.parse(data);
-      console.log(lobbies);
 
       const newLobby = new Lobby(
         details.lobbyName,
         new Player(details.name, socket),
         details.password
       );
+
       console.log(newLobby);
       for (let lobby of lobbies) {
         if (lobby.name == newLobby.name) {
@@ -55,13 +66,33 @@ io.on("connection", (socket) => {
         }
       }
       lobbies.push(newLobby);
-      socket.emit(
+
+      io.emit(
         "create-lobby-response",
         JSON.stringify({
           message: "Lobby created successfully",
           status: "success",
         })
       );
+      let lobbiesDetails = lobbiesToLobbiesDetails(lobbies);
+
+      io.emit("browse-lobby-response", JSON.stringify(lobbiesDetails));
+
+      socket.on("cancel", () => {
+        let newlobbies = lobbies.filter((lobby) => lobby.name != newLobby.name);
+        updateLobbies(newlobbies);
+        console.log("lobbies after deletion");
+        console.log(lobbies);
+        let lobbiesDetails = lobbiesToLobbiesDetails(lobbies);
+        io.emit("browse-lobby-response", JSON.stringify(lobbiesDetails));
+        socket.emit(
+          "cancel-response",
+          JSON.stringify({
+            message: "Lobby cancelled successfully",
+            status: "success",
+          })
+        );
+      });
     } catch (err) {
       console.log("Error while creating lobby");
       console.log(err);
@@ -73,12 +104,28 @@ io.on("connection", (socket) => {
     try {
       //data consists the name of the lobby,name of player and password
       let details = JSON.parse(data);
+      console.log("this is details");
 
+      console.log(details);
       for (let lobby of lobbies) {
         if (
           lobby.name == details.lobbyName &&
           lobby.password == details.password
         ) {
+          if (lobby.players.length == 2) {
+            socket.emit(
+              "join-lobby-response",
+              JSON.stringify({
+                message: "Lobby is full",
+                status: "failure",
+              })
+            );
+            return;
+          }
+          lobby.players[0].socket.emit(
+            "waiting-player-response",
+            "Player found"
+          );
           lobby.players.push(new Player(details.name, socket));
           console.log(lobby);
           socket.emit(

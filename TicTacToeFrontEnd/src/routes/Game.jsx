@@ -1,41 +1,55 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import GameGrid from "./GameGrid";
-import GameButton from "./GameButton";
-export default function Game({ name }) {
-  const [message, setMessage] = useState("Please Pick");
-  const [socket, setSocket] = useState(null);
+import GameGrid from "../Components/GameGrid";
+import GameButton from "../Components/GameButton";
+import { SocketContext } from "../context/socketContext";
+export default function Game() {
+  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [grid, setGrid] = useState([]);
+  const [grid, setGrid] = useState([
+    "_",
+    "_",
+    "_",
+    "_",
+    "_",
+    "_",
+    "_",
+    "_",
+    "_",
+  ]);
   const [gameOver, setGameOver] = useState(false);
   const [btnClicked, setBtnClicked] = useState(false);
+  const socket = useContext(SocketContext);
   function connectToServer() {
-    const newSocket = io("https://tic-tac-toe-seven-pied.vercel.app/", {
-      query: `name=${name}`,
-    });
-    setSocket(newSocket);
-    newSocket.on("connect", () => {
+    if (!socket) return;
+    socket.on("connect", () => {
       console.log("connected to server");
     });
-    newSocket.on("message", (message) => {
+
+
+    socket.on("disconnect", () => {
+      console.log("trying to reconnect");
+    });
+
+    socket.on("message", (message) => {
       setError("");
       setMessage(message);
       console.log(message);
     });
-    newSocket.on("error", (error) => {
+    socket.on("error", (error) => {
       setError(error);
     });
-    newSocket.on("grid", (newGrid) => {
+    socket.on("grid", (newGrid) => {
       console.log("this is new grid" + newGrid);
       setGrid(newGrid);
     });
 
-    newSocket.on("over", (message) => {
+    socket.on("over", (message) => {
       setGameOver(true);
       setMessage(message);
     });
 
-    newSocket.on("play-again", () => {
+    socket.on("play-again", () => {
       setBtnClicked(false);
       setGameOver(false);
     });
@@ -59,7 +73,7 @@ export default function Game({ name }) {
   };
 
   return (
-    <>
+    <div className="game">
       <div className="center">
         <h2 className="message">{message}</h2>
         <div className="error">{error && error}</div>
@@ -73,6 +87,6 @@ export default function Game({ name }) {
           />
         )}
       </div>
-    </>
+    </div>
   );
 }

@@ -47,6 +47,16 @@
   background-color: rgb(83, 174, 83);
 }
 
+.danger {
+  background-color: red;
+  padding: 30px 20px;
+  border: none;
+}
+
+.danger:hover {
+  background-color: rgb(252, 120, 120);
+}
+
 .create-lobby {
   height: 100vh;
   display: flex;
@@ -60,7 +70,7 @@
   align-items: center;
   padding: 30px;
   width: 350px;
-  height: 400px;
+  max-height: 500px;
   border-radius: 5px;
   box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px,
     rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
@@ -132,4 +142,50 @@ h1 {
 
 .err {
   color: red;
+}
+
+.game {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.center {
+  height: 400px;
+  text-align: center;
+}
+
+.game .error {
+  height: 15px;
+  margin-bottom: 20px;
+}
+
+.grid {
+  width: 50;
+  height: 50;
+  /* background-color: blue; */
+  border: 1px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 350px;
+  height: 300px;
+}
+
+.loader {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.loader h1 {
+  margin-bottom: 20px;
 }

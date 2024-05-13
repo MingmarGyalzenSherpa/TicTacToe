@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import App from "./App.jsx";
+
 import "./index.css";
 import Lobby from "./routes/Lobby.jsx";
 import Home from "./routes/Home.jsx";
 import CreateLobby from "./routes/CreateLobby.jsx";
 import JoinLobby from "./routes/JoinLobby.jsx";
+import { SocketContextProvider } from "./context/socketContext.jsx";
+import Game from "./routes/Game.jsx";
+import Loader from "./routes/Loader.jsx";
 
 const router = createBrowserRouter([
   {
@@ -25,8 +28,18 @@ const router = createBrowserRouter([
     path: "/browse-lobby",
     element: <Lobby />,
   },
+  {
+    path: "/game",
+    element: <Game />,
+  },
+  {
+    path: "/loader",
+    element: <Loader />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <RouterProvider router={router} />
+  <SocketContextProvider>
+    <RouterProvider router={router} />
+  </SocketContextProvider>
 );
