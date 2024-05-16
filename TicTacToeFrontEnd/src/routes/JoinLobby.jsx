@@ -38,7 +38,7 @@ export default function JoinLobby() {
         setErr(data.message);
         return;
       } else {
-        navigate("/game");
+        navigate(`/game/${lobbyName}`);
       }
     });
   }

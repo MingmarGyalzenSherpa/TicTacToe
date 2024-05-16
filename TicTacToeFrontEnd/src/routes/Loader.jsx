@@ -1,15 +1,17 @@
 import React, { useContext, useEffect } from "react";
 import { SocketContext } from "../context/socketContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function Loader() {
   const socket = useContext(SocketContext);
   const navigate = useNavigate();
+  const { gameID } = useParams();
 
   useEffect(() => {
+    console.log(gameID);
     if (!socket) return;
     socket.on("waiting-player-response", (response) => {
-      navigate("/game");
+      navigate(`/game/${gameID}`);
     });
     socket.on("cancel-response", (response) => {
       const data = JSON.parse(response);

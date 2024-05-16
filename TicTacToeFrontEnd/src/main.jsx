@@ -29,11 +29,11 @@ const router = createBrowserRouter([
     element: <Lobby />,
   },
   {
-    path: "/game",
+    path: "/game/:gameID",
     element: <Game />,
   },
   {
-    path: "/loader",
+    path: "/loader/:gameID",
     element: <Loader />,
   },
 ]);

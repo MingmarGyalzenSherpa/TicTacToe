@@ -14,6 +14,9 @@ export function SocketContextProvider({ children }) {
     socketConn.on("connect", () => {
       console.log("connection successfull");
       console.log(socketConn.id);
+
+      if (!sessionStorage.getItem("id"))
+        sessionStorage.setItem("id", socketConn.id);
     });
     setSocket(socketConn);
   }, []);

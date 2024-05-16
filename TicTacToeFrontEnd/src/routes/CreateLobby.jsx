@@ -42,7 +42,7 @@ export default function CreateLobby() {
       setErr(data.message);
     } else {
       console.log("getting ");
-      navigate("/loader");
+      navigate(`/loader/${data.name}`);
     }
   };
 

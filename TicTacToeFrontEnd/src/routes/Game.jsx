@@ -3,6 +3,7 @@ import { io } from "socket.io-client";
 import GameGrid from "../Components/GameGrid";
 import GameButton from "../Components/GameButton";
 import { SocketContext } from "../context/socketContext";
+import { useParams } from "react-router-dom";
 export default function Game() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -20,16 +21,25 @@ export default function Game() {
   const [gameOver, setGameOver] = useState(false);
   const [btnClicked, setBtnClicked] = useState(false);
   const socket = useContext(SocketContext);
+  const { gameID } = useParams();
   function connectToServer() {
     if (!socket) return;
-    socket.on("connect", () => {
-      console.log("connected to server");
-    });
-
-
-    socket.on("disconnect", () => {
-      console.log("trying to reconnect");
-    });
+    console.log(gameID);
+    if (sessionStorage.getItem("id") != socket.id) {
+      socket.emit(
+        "reconnect-user",
+        JSON.stringify({
+          lobbyName: gameID,
+          socketID: sessionStorage.getItem("id"),
+        })
+      );
+      socket.on("reconnect-user-response", (response) => {
+        const data = JSON.parse(response);
+        if (data.status == "success") {
+          sessionStorage.setItem("id", socket.id);
+        }
+      });
+    }
 
     socket.on("message", (message) => {
       setError("");
@@ -62,7 +72,7 @@ export default function Game() {
 
   useEffect(() => {
     connectToServer();
-  }, []);
+  }, [socket]);
 
   const emitHandler = (event, message) => {
     if (socket) {
