@@ -41,6 +41,7 @@ export default function CreateLobby() {
       console.log("err hai");
       setErr(data.message);
     } else {
+      sessionStorage.setItem("id", socket.id);
       console.log("getting ");
       navigate(`/loader/${data.name}`);
     }

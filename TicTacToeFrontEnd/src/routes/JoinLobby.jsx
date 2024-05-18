@@ -1,11 +1,12 @@
 import React, { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { SocketContext } from "../context/socketContext";
 
 export default function JoinLobby() {
   const [username, setUsername] = useState("");
   const [lobbyName, setLobbyName] = useState("");
   const [password, setPassword] = useState("");
+  const { lobby } = useParams();
   const [err, setErr] = useState("");
   const socket = useContext(SocketContext);
   const navigate = useNavigate();
@@ -24,9 +25,10 @@ export default function JoinLobby() {
   function handleSubmit(e) {
     e.preventDefault();
     if (!socket) return;
+
     const data = {
       name: username,
-      lobbyName,
+      lobbyName: lobby ? lobby : lobbyName,
       password,
     };
     socket.emit("join-lobby", JSON.stringify(data));
@@ -38,7 +40,7 @@ export default function JoinLobby() {
         setErr(data.message);
         return;
       } else {
-        navigate(`/game/${lobbyName}`);
+        navigate(`/game/${lobbyName || lobby}`);
       }
     });
   }
@@ -59,7 +61,9 @@ export default function JoinLobby() {
           <input
             onChange={handleLobbyNameChange}
             onFocus={() => setErr("")}
+            disabled={lobby ? true : false}
             type="text"
+            value={lobby && lobby}
             placeholder="Enter lobby name"
           />
         </div>
@@ -71,7 +75,7 @@ export default function JoinLobby() {
           />
         </div>
 
-        {lobbyName == "" || username == "" ? (
+        {(!lobby && lobbyName == "") || username == "" ? (
           <Link
             to={"/"}
             onClick={(e) => {

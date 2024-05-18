@@ -21,7 +21,7 @@ const router = createBrowserRouter([
     element: <CreateLobby />,
   },
   {
-    path: "/join-lobby",
+    path: "/join-lobby/:lobby?",
     element: <JoinLobby />,
   },
   {

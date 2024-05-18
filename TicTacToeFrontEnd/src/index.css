@@ -145,6 +145,35 @@ h1 {
   color: red;
 }
 
+.game-btns-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game-btn {
+  border: none;
+  width: 200px;
+  border-radius: 5px;
+  padding: 15px 30px;
+  margin-top: 10px;
+  background-color: rgb(55, 190, 91);
+  color: white;
+  cursor: pointer;
+}
+
+.game-btn:hover {
+  background-color: rgb(55, 141, 78);
+}
+
+.leave-btn {
+  background-color: rgb(243, 70, 70);
+}
+
+.leave-btn:hover {
+  background-color: rgb(244, 42, 42);
+}
+
 .game {
   height: 100vh;
   display: flex;

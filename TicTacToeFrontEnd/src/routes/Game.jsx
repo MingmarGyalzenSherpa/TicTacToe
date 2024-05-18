@@ -89,12 +89,19 @@ export default function Game() {
         <div className="error">{error && error}</div>
         <GameGrid emitHandler={emitHandler} grid={grid} />
         {gameOver && (
-          <GameButton
-            handleClick={playAgain}
-            btnClicked={btnClicked}
-            classes={`margin-10 ${btnClicked && " bg-green"}`}
-            label={btnClicked ? "Waiting for another player" : "Play Again"}
-          />
+          <div className="game-btns-wrapper">
+            <GameButton
+              handleClick={playAgain}
+              btnClicked={btnClicked}
+              label={btnClicked ? "Waiting for another player" : "Play Again"}
+            />
+            <GameButton
+              handleClick={playAgain}
+              btnClicked={btnClicked}
+              classes={`margin-10 leave-btn`}
+              label={"Leave Room"}
+            />
+          </div>
         )}
       </div>
     </div>
