@@ -6,9 +6,13 @@ import { lobbies, updateLobbies } from "./Lobbies.js";
 import Player from "./Player.js";
 import Lobby from "./Lobby.js";
 import { lobbiesToLobbiesDetails } from "./helper/helper.js";
+import cookieParser from "cookie-parser";
 const app = express();
 
+app.use(cookieParser());
+
 app.use(express.json());
+
 app.use(
   cors({
     origin: "*",
@@ -34,7 +38,63 @@ const io = new Server(server, {
 let pendingUser = null;
 
 io.on("connection", (socket) => {
-  //browsing all the lobbies;
+  socket.on("leave-room", (response) => {
+    try {
+      const data = JSON.parse(response);
+      console.log(data);
+      let lobby = lobbies.find((lobby) => lobby.name == data.lobbyName);
+      console.log(lobby);
+      if (!lobby) {
+        socket.emit(
+          "leave-room-response",
+          JSON.stringify({
+            message: "No lobby room found",
+            status: "failure",
+          })
+        );
+        return;
+      }
+      console.log("haha");
+      lobby.removePlayer(data.socketID);
+
+      socket.emit(
+        "leave-room-response",
+        JSON.stringify({
+          message: "Player removed successfully",
+          status: "success",
+        })
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  });
+
+  socket.on("reconnect-user", (response) => {
+    const data = JSON.parse(response);
+    console.log("data of player");
+    console.log(data);
+
+    console.log(socket.id);
+    let lobbyFound = lobbies.find((lobby) => lobby.name == data.lobbyName);
+    if (lobbyFound) {
+      console.log("before update");
+      console.log(lobbyFound.players);
+      lobbyFound.updatePlayers(socket, data.socketID);
+      console.log("updated player in lobby");
+      console.log(lobbyFound.players);
+      socket.emit(
+        "reconnect-user-response",
+        JSON.stringify({
+          message: "Reconnect successful",
+          status: "success",
+        })
+      );
+      //player match garnu parxa corresponding
+      //player match bhaye tesko socket id update garni
+      //update garesi broadcast garni
+    }
+  });
+
   socket.on("browse-lobbies", () => {
     let lobbiesDetails = lobbiesToLobbiesDetails(lobbies);
     console.log(lobbiesDetails);
@@ -52,7 +112,6 @@ io.on("connection", (socket) => {
         details.password
       );
 
-      console.log(newLobby);
       for (let lobby of lobbies) {
         if (lobby.name == newLobby.name) {
           socket.emit(
@@ -72,6 +131,7 @@ io.on("connection", (socket) => {
         JSON.stringify({
           message: "Lobby created successfully",
           status: "success",
+          name: newLobby.name,
         })
       );
       let lobbiesDetails = lobbiesToLobbiesDetails(lobbies);
@@ -99,14 +159,17 @@ io.on("connection", (socket) => {
     }
   });
 
+  //leave-rooom
+  console.log("before leave room");
+
+  console.log("after leave room");
+
   //logic for joining a lobby
   socket.on("join-lobby", (data) => {
     try {
       //data consists the name of the lobby,name of player and password
       let details = JSON.parse(data);
-      console.log("this is details");
-
-      console.log(details);
+      console.log("socket id inside join lobby", socket.id);
       for (let lobby of lobbies) {
         if (
           lobby.name == details.lobbyName &&
@@ -127,7 +190,7 @@ io.on("connection", (socket) => {
             "Player found"
           );
           lobby.players.push(new Player(details.name, socket));
-          console.log(lobby);
+
           socket.emit(
             "join-lobby-response",
             JSON.stringify({
@@ -135,6 +198,7 @@ io.on("connection", (socket) => {
               status: "success",
             })
           );
+
           lobby.start();
           return;
         }

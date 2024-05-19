@@ -8,6 +8,34 @@ export default class TicTacToe {
   constructor(player1, player2) {
     this.playerX = player1;
     this.playerO = player2;
+    this.setUpInitialEventListener();
+
+    this.play();
+  }
+
+  broadCast() {
+    this.sendMessage("grid", this.grid);
+    this.sendMessage("alive", this.isAlive);
+    this.turn.emit("message", "your turn");
+    if (this.playerX.socket == this.turn) {
+      this.playerO.socket.emit(
+        "message",
+        `Waiting for ${this.playerX.name} move`
+      );
+    } else {
+      this.playerX.socket.emit(
+        "message",
+        `Waiting for ${this.playerO.name} move`
+      );
+    }
+  }
+
+  setUpInitialEventListener() {
+    //remove if any existing listener
+    this.playerX.socket.removeAllListeners();
+    this.playerO.socket.removeAllListeners();
+
+    //add listener for move
     this.playerX.socket.on("move", (move) =>
       this.makeMove(this.playerX.socket, JSON.parse(move))
     );
@@ -15,19 +43,19 @@ export default class TicTacToe {
       this.makeMove(this.playerO.socket, JSON.parse(move))
     );
 
+    //for play again logic
     this.addEvent("play-again", (socket) => {
       try {
         socket.playAgain = true;
         if (this.playerX.socket.playAgain && this.playerO.socket.playAgain) {
           this.sendMessage("play-again");
+          this.playerX.socket.playAgain = this.playerO.socket.playAgain = false;
           this.play();
         }
       } catch (err) {
         console.log(err);
       }
     });
-
-    this.play();
   }
 
   play() {
@@ -35,11 +63,7 @@ export default class TicTacToe {
     this.isAlive = true;
     this.turn = this.playerX.socket;
     this.grid = new Array(9).fill("_");
-    this.turn.emit("message", "your turn");
-    this.playerO.socket.emit(
-      "message",
-      `Waiting for ${this.playerX.name}  move`
-    );
+    this.broadCast();
     this.sendMessage("grid", this.grid);
   }
 
